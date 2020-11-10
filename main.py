@@ -1,6 +1,7 @@
 # This is a sample Python script.
 
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QAction, QFileDialog, QHBoxLayout, QListWidget, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QAction, QFileDialog,\
+    QHBoxLayout, QVBoxLayout, QListWidget, QTextEdit, QPushButton, QMessageBox
 
 from PyQt5.QtGui import QIcon
 import sys
@@ -17,27 +18,61 @@ class MainWidget(QWidget):
 
     def initUI(self):
         self.setMinimumSize(800, 600)
-        self.entries = csv_parsing.parse_csv(self.file_path)
+        self.entries, error = csv_parsing.parse_csv(self.file_path)
 
-        names = [x.name + " " + x.surname  for x in self.entries ]
-        pprint.pprint(self.entries)
-        pprint.pprint(names)
+        if error:
+            self.display_error("The csv file is malformed", error)
+
+        names = [x.name + " " + x.surname for x in self.entries ]
 
         main_layout = QHBoxLayout()
         self.list_view = QListWidget()
         self.list_view.addItems(names)
-
         self.list_view.currentRowChanged.connect(self.list_index_changed)
+
+        text_layout = QVBoxLayout()
+        self.extra_info = QLabel()
+        self.extra_info.setStyleSheet("font-weight: bold; color: black")
+        self.copy_button = QPushButton("Copy to Clipboard")
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
         self.text_view = QTextEdit()
         self.text_view.setReadOnly(True)
+
+        text_layout.addWidget(self.extra_info)
+        text_layout.addWidget(self.copy_button)
+        text_layout.addWidget(self.text_view)
         main_layout.addWidget(self.list_view,1)
-        main_layout.addWidget(self.text_view, 3)
+        main_layout.addLayout(text_layout, 3)
         self.setLayout(main_layout)
         self.show()
 
     def list_index_changed(self, current):
-        print("current changed" + str(current))
-        self.text_view.setText(csv_parsing.create_email(self.entries[current]))
+        entry = self.entries[current]
+        self.copy_button.setText("Copy to Clipboard")
+        self.copy_button.setStyleSheet("color: black")
+        email, error = csv_parsing.create_email(entry)
+
+        if error:
+            self.display_error("Could not create candidate email", error)
+        self.text_view.setText(email)
+        self.extra_info.setText(entry.job +
+                                ", email: " + entry.email + ", Phone: " + entry.phone)
+
+    def copy_to_clipboard(self):
+        QApplication.clipboard().setText(self.text_view.toPlainText())
+        self.copy_button.setStyleSheet("font-weight: bold; color: green")
+        self.copy_button.setText("Copied to Clipboard!")
+
+    def display_error(self, error, extra):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText(error)
+
+        msg.setWindowTitle("Error")
+
+        msg.setDetailedText(extra)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
 
 class Window(QMainWindow):
@@ -56,6 +91,7 @@ class Window(QMainWindow):
         openFile.setStatusTip('Open new File')
         openFile.triggered.connect(self.showDialog)
 
+        #self.process_csv('C:\\Users\\Slavik\\PycharmProjects\\hr_office\\Export of candidates 09-11-2020.csv')
         #self.process_csv('/home/veaceslav/git/Hr_Office/Export of candidates 09-11-2020.csv')
 
         menubar = self.menuBar()
