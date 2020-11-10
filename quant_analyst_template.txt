@@ -1,0 +1,33 @@
+Dear $applicant_name,
+
+We would like to thank you for applying for our $job_position role.
+
+After careful consideration of your CV and motivation letter, we are happy to let you know that we would like to continue with the next step which is an online test.
+
+To take the test, please use the link below:
+
+$classmarker_test_link
+
+The password is: $classmarker_test_password
+
+The test consists of questions based on mental arithmetic and approximation. 
+It has a time limit of 10 minutes.
+Please note that for questions answered wrong you will receive penalization points which will be subtracted from your points to form the final result of the test. The more questions you answer wrong, the higher the penalization points. 
+
+You will find all the instructions regarding the test on your screen when you start it. Please note that you cannot pause the test once you started.
+
+The test can be taken only once. We would advise you to prepare well before taking it. Please also make sure that you have good internet connection.
+
+Once you have taken the test, we will get back to you shortly after assessing the results.
+
+The deadline to finish the test is $test_deadline , before 18.00 hrs CET.
+
+For the sake of completeness, please note that a similar test will be part of the final assessment round in the application process after the HR interview and the Technical interview.  
+
+Good luck!
+
+Kind regards,
+
+Blerina Anastasi
+Human Resources
+Da Vinci Derivatives 
