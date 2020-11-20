@@ -7,10 +7,14 @@
 #  - log: log(message, level='info'): logging function to record debug information in ir.logging table
 #  - UserError: Warning Exception to use with raise
 # To return an action, assign: action = {...}
-log(str(record.partner_name) + str(record.email_from) + " id: " + str(record.id)+ " job_id: " + str(record.job_id[0].id) +" stage: " + str(record.stage_id[0].id))
 
-
-
+def get_email_body(name, job_name):
+  template = env['mail.template'].browse(15)
+  body = str(template.body_html).format(name, job_name)
+  
+  return body
+           
+  
 def send_email(recipient, subject, body):
   template_data = {'email_from' :'recruitment@davinciderivatives.odoo.com',
                    'subject': subject,
@@ -36,8 +40,13 @@ def add_email_to_thread(applicant_id, subject, body):
   env['mail.message'].create(template_data2)
   
 
-subject = "Classmarker Online test"
-email_body = "Please take the test below"
+yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
+data = env['hr.applicant'].search([( 'active', '=' , False), ('write_date', 'like', yesterday + '%')])
 
-send_email(str(record.email_from), subject, email_body)
-add_email_to_thread(record.id, subject, email_body )
+
+for record in data:
+  #log(env['hr.applicant'].browse(item.id).partner_name + env['hr.applicant'].browse(item.id).refuse_reason_id.name)
+  subject = "Your Job Application: "+ record.job_id[0].display_name
+  body = get_email_body(record.partner_name, record.job_id[0].display_name)
+  send_email(record.email_from, subject, body)
+  add_email_to_thread(record.id, subject, body)
