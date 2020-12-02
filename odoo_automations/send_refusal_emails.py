@@ -15,10 +15,11 @@ def get_email_body(name, job_name):
   return body
            
   
-def send_email(recipient, subject, body):
+def send_email(message_id, recipient, subject, body):
   template_data = {'email_from' :'recruitment@davinciderivatives.odoo.com',
                    'subject': subject,
                    'email_to': str(record.email_from),
+                   'mail_message_id' : message_id.id,
                    'body_html': body
                    }
   
@@ -37,7 +38,7 @@ def add_email_to_thread(applicant_id, subject, body):
                       'subject': subject,
                       'subtype_id': 1
                       }
-  env['mail.message'].create(template_data2)
+  return env['mail.message'].create(template_data2)
   
 
 yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
@@ -48,5 +49,5 @@ for record in data:
   #log(env['hr.applicant'].browse(item.id).partner_name + env['hr.applicant'].browse(item.id).refuse_reason_id.name)
   subject = "Your Job Application: "+ record.job_id[0].display_name
   body = get_email_body(record.partner_name, record.job_id[0].display_name)
-  send_email(record.email_from, subject, body)
-  add_email_to_thread(record.id, subject, body)
+  message_id = add_email_to_thread(record.id, subject, body)
+  send_email(message_id, record.email_from, subject, body)
